@@ -3,23 +3,68 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 class Square extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      fondo: '#fff'
+    };
+
+    this.mouseover = this.mouseover.bind(this);
+  }
+  mouseover(e) {
+    this.props.onMouseMove(e);
+
+    this.setState({
+      fondo: '#eee'
+    });
+  }
   render() {
+    const {fondo} = this.state;
     return (
-      <button className="square">
-        {/* TODO */}
+      <button
+        className="square"
+        onClick={() => this.props.onClick()} 
+        onMouseMove={this.mouseover} 
+        style={{backgroundColor:  fondo}}>
+        {this.props.value}
       </button>
     );
   }
 }
 
 class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null), 
+      x:0, 
+      y:0
+    };
+
+    this.onMouseMove = this.onMouseMove.bind(this);
+  }
+
+  handleClick(i) {
+    const squares = this.state.squares.slice();
+    squares[i] = 'X';
+    this.setState({squares: squares});
+  }
+
+  onMouseMove(e) {
+    this.setState({ x: e.screenX, y: e.screenY });
+  }
+  
   renderSquare(i) {
-    return <Square />;
+    return <Square value={this.state.squares[i]} 
+            onClick={() => this.handleClick(i)}
+            onMouseMove={this.onMouseMove}></Square>;
   }
 
   render() {
     const status = 'Next player: X';
 
+    const { x, y } = this.state;
     return (
       <div>
         <div className="status">{status}</div>
@@ -38,6 +83,7 @@ class Board extends React.Component {
           {this.renderSquare(7)}
           {this.renderSquare(8)}
         </div>
+        <div className="extra-info">{x} {y}</div>
       </div>
     );
   }
@@ -58,8 +104,6 @@ class Game extends React.Component {
     );
   }
 }
-
-// ========================================
 
 ReactDOM.render(
   <Game />,
